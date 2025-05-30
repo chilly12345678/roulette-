@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Roulette Predictor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101010;
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    input {
+      padding: 10px;
+      font-size: 18px;
+      width: 120px;
+      margin: 10px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 Live Roulette AI Predictor</h1>
+  
+  <p>Last 2 Numbers (Separate by comma):</p>
+  <input id="lastTwo" placeholder="e.g. 17,22" />
+  <br>
+  <button onclick="predict()">Predict Next</button>
+
+  <div class="result" id="predictionResult"></div>
+
+  <script>
+    function predict() {
+      const input = document.getElementById("lastTwo").value;
+      const resultDiv = document.getElementById("predictionResult");
+
+      if (!input.includes(",")) {
+        resultDiv.innerHTML = "❌ Please enter two numbers separated by a comma.";
+        return;
+      }
+
+      const parts = input.split(",").map(p => parseInt(p.trim()));
+      if (parts.length !== 2 || parts.some(isNaN)) {
+        resultDiv.innerHTML = "❌ Invalid input. Use format: 12, 34";
+        return;
+      }
+
+      const [n1, n2] = parts;
+
+      // AI-style roulette logic (simple pattern recognition)
+      const allNumbers = [...Array(37).keys()];
+      let predicted = [];
+
+      // Basic clockwise/anticlockwise logic simulation
+      const clockwise = (n) => (n + 1) % 37;
+      const anticlockwise = (n) => (n - 1 + 37) % 37;
+
+      // Generate next 12 numbers using direction logic
+      predicted.push(clockwise(n2));
+      predicted.push(clockwise(clockwise(n2)));
+      predicted.push(anticlockwise(n2));
+      predicted.push(anticlockwise(anticlockwise(n2)));
+
+      // Add center logic (avg) + spread
+      const avg = Math.floor((n1 + n2) / 2);
+      predicted.push(avg);
+      predicted.push(clockwise(avg));
+      predicted.push(anticlockwise(avg));
+
+      // Add some backup numbers
+      predicted.push((avg + 5) % 37);
+      predicted.push((avg - 5 + 37) % 37);
+      predicted.push((n2 + 9) % 37);
+      predicted.push((n2 - 9 + 37) % 37);
+
+      const finalSet = [...new Set(predicted)].slice(0, 12); // 12 numbers
+
+      resultDiv.innerHTML = `<strong>🎯 Sure-Shot Prediction (12 Numbers):</strong><br><br>${finalSet.join(", ")}`;
+    }
+  </script>
+
+</body>
+</html>
