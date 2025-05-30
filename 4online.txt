@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Roulette Live Predictor - Online Version</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      background: #e9f0ff;
+    }
+    input[type=number] {
+      width: 70px;
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d99;
+    }
+    .result {
+      margin-top: 25px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+    }
+    .highlight {
+      color: #0055cc;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Roulette Live Predictor (Online)</h1>
+  <p>ඔයාලා දැක්ක 2 අංක ටයිප් කරන්න (0-36), Predict බොත්තම click කරන්න.</p>
+
+  <label for="num1">අංක 1:</label>
+  <input type="number" id="num1" min="0" max="36" />
+  <label for="num2">අංක 2:</label>
+  <input type="number" id="num2" min="0" max="36" />
+  <button onclick="predict()">Predict</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    const wheel = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+
+    function getNeighbors(num, direction, count=12) {
+      const idx = wheel.indexOf(num);
+      if (idx === -1) return [];
+      let result = [];
+      for (let i=1; i<=count; i++) {
+        let nextIdx;
+        if(direction === 'clockwise') {
+          nextIdx = (idx + i) % wheel.length;
+        } else {
+          nextIdx = (idx - i + wheel.length) % wheel.length;
+        }
+        result.push(wheel[nextIdx]);
+      }
+      return result;
+    }
+
+    function predict() {
+      const n1 = parseInt(document.getElementById('num1').value);
+      const n2 = parseInt(document.getElementById('num2').value);
+      const output = document.getElementById('output');
+
+      if (isNaN(n1) || isNaN(n2) || !wheel.includes(n1) || !wheel.includes(n2)) {
+        output.innerHTML = '<p style="color:red;">කරුණාකර 0-36 අතර වලංගු අංක 2ක් ඇතුලත් කරන්න.</p>';
+        return;
+      }
+
+      const idx1 = wheel.indexOf(n1);
+      const idx2 = wheel.indexOf(n2);
+
+      let distanceCW = (idx2 - idx1 + wheel.length) % wheel.length;
+      let isClockwise = distanceCW <= 18;
+      let direction = isClockwise ? 'Clockwise (සිරස්)':'Anticlockwise (පරස්)';
+
+      let cwNumbers = getNeighbors(n2, 'clockwise');
+      let acwNumbers = getNeighbors(n2, 'anticlockwise');
+
+      let sureShot = isClockwise ? cwNumbers : acwNumbers;
+
+      output.innerHTML = `
+        <h2>🔍 Pattern විස්තර</h2>
+        <p><b>ඔබ ඇතුලත් කළ අංක:</b> ${n1}, ${n2}</p>
+        <p><b>දිශාව:</b> <span class="highlight">${direction}</span></p>
+        <p><b>Clockwise අංක 12:</b> ${cwNumbers.join(', ')}</p>
+        <p><b>Anticlockwise අංක 12:</b> ${acwNumbers.join(', ')}</p>
+        <p><b>🔥 Sure Shot 12 අංක:</b><br> ${sureShot.join(', ')}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
